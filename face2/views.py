@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 from urllib import request
 from django.http import HttpResponse
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render,HttpResponse,redirect
 from .models import Register
 import cv2
 import numpy as np
@@ -12,8 +12,12 @@ import os
 import time
 from datetime import datetime
 encodeList = []
+nameList = []
 # Create your views here.
+
 def index(request):
+    return render(request,"index.html")
+def start(request):
     path = 'Training_images'
     images = []
     classNames = []
@@ -37,7 +41,7 @@ def index(request):
             encodeList.append(encode)
         return encodeList
 
-    nameList = []
+    
     def markAttendance(name):
         # code for save in database---
         
@@ -55,10 +59,11 @@ def index(request):
                     now = datetime.now()
                     dtString = now.strftime("%d/%m/%Y %H:%M:%S")
                     f.writelines(f'\n{name},{dtString}')
-                    register = Register(name = name ,time =str(dtString))
+                    studentno = name[0:7]
+                    name1  = name[7:]
+                    name1 = name1.replace('_','')
+                    register = Register(name = name1 ,studentno = studentno,time =str(dtString))
                     register.save()
-        
-                    
 
     #### FOR CAPTURING SCREEN RATHER THAN WEBCAM
     # def captureScreen(bbox=(300,300,690+300,530+300)):
@@ -101,4 +106,5 @@ def index(request):
         cv2.imshow('Webcam', img)
         cv2.waitKey(1)  
     return HttpResponse("working!!")
-
+def stop(stop):
+    return redirect("/")
