@@ -108,3 +108,6 @@ def start(request):
     return HttpResponse("working!!")
 def stop(stop):
     return redirect("/")
+def showdata(request):
+    data = Register.objects.all()
+    return render(request,"data.html",{"message" :data})
