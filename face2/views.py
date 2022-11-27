@@ -1,10 +1,12 @@
 from django.shortcuts import render
-
+import pyttsx3
+converter = pyttsx3.init()
+converter.setProperty('volume', 0.7)
 # Create your views here.
 from urllib import request
 from django.http import HttpResponse
 from django.shortcuts import render,HttpResponse,redirect
-from .models import Register
+from .models import Register,Manager
 import cv2
 import numpy as np
 import face_recognition
@@ -14,9 +16,21 @@ from datetime import datetime
 encodeList = []
 nameList = []
 # Create your views here.
-
-def index(request):
-    return render(request,"index.html")
+def login(request):
+    return render(request,"login.html")
+def validate(request):
+    if request.method == 'POST':
+        password = request.POST.get("password")
+        print(password)
+        a = Manager.objects.all()
+        for i in a:
+            print("orignal password is ",i.password)
+            if i.password == password:
+                return render(request,"index.html")
+        return redirect("/",{"message":"Wrong password"})   
+                
+# def index(request):
+#     return render(request,"index.html")
 def start(request):
     path = 'Training_images'
     images = []
@@ -64,6 +78,8 @@ def start(request):
                     name1 = name1.replace('_','')
                     register = Register(name = name1 ,studentno = studentno,time =str(dtString))
                     register.save()
+                    converter.say(f"{name} Your Attendence has been taken")
+                    converter.runAndWait()
 
     #### FOR CAPTURING SCREEN RATHER THAN WEBCAM
     # def captureScreen(bbox=(300,300,690+300,530+300)):
@@ -88,9 +104,9 @@ def start(request):
         for encodeFace, faceLoc in zip(encodesCurFrame, facesCurFrame):
             matches = face_recognition.compare_faces(encodeListKnown, encodeFace)
             faceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
+            
         # print(faceDis)
             matchIndex = np.argmin(faceDis)
-
             if matches[matchIndex]:
                 name = classNames[matchIndex].upper()
         # print(name)
@@ -106,7 +122,7 @@ def start(request):
         cv2.imshow('Webcam', img)
         cv2.waitKey(1)  
     return HttpResponse("working!!")
-def stop(stop):
+def stop(request):
     return redirect("/")
 def showdata(request):
     data = Register.objects.all()

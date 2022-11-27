@@ -8,5 +8,7 @@ class Register(models.Model):
     studentno = models.BigIntegerField()
     time = models.CharField(max_length=30)
     
+class Manager(models.Model):
+    password = models.CharField(max_length=30)   
 def __str__(self):
     return self.studentno
